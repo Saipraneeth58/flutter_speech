@@ -11,6 +11,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   @override
+
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Voice',
@@ -77,6 +78,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
   String _text1 = 'Press the button and start speaking';
   double _confidence = 1.0;
   double _confidence1 =1.0;
+  String problemType='server down';
+  String newone ='';
 
   @override
   void initState() {
@@ -84,6 +87,16 @@ class _SpeechScreenState extends State<SpeechScreen> {
     _speech = stt.SpeechToText();
     _speech1 = stt.SpeechToText();
   }
+  String selectedUser = 'Server Down';
+  String holder = '';
+  List<String> users = [
+    'Slow Internet',
+    'PDF not uploaded',
+    'Camera defect',
+    'Upload time exceeded',
+    'Server Down'
+  ];
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,20 +105,43 @@ class _SpeechScreenState extends State<SpeechScreen> {
         title: Text('Confidence: ${(_confidence * 100.0).toStringAsFixed(1)}%'),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: AvatarGlow(
-        animate: _isListening,
-        glowColor: Theme.of(context).primaryColor,
-        endRadius: 75.0,
-        duration: const Duration(milliseconds: 2000),
-        repeatPauseDuration: const Duration(milliseconds: 100),
-        repeat: true,
-        child: FloatingActionButton(
-          onPressed: _listen,
-          child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children:[ AvatarGlow(
+          animate: _isListening,
+          glowColor: Theme.of(context).primaryColor,
+          endRadius: 75.0,
+          duration: const Duration(milliseconds: 2000),
+          repeatPauseDuration: const Duration(milliseconds: 100),
+          repeat: true,
+          child: FloatingActionButton(
+            onPressed: _listen,
+            child: Icon(_isListening ? Icons.mic : Icons.mic_none),
+          ),
         ),
+          FlatButton(onPressed: upload,color: Colors.redAccent, child:
+          Text('Next'),),
+          DropdownButton<String>(
+            isExpanded: true,
+            hint: Text("Select item"),
+            value: selectedUser,
+            onChanged: (String value) {
+              setState(() {
+                selectedUser = value;
+                problemType = selectedUser.toString();
+              });
+            },
+            items: users.map((String user) {
+              return DropdownMenuItem<String>(
+                value: user,
+                child: Text(user),
+              );
+            }).toList(),
+          ),
+      ],
+
       ),
-      body: Column(
-        children:[ SingleChildScrollView(
+      body: SingleChildScrollView(
           reverse: true,
           child: Container(
             padding: const EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 150.0),
@@ -120,24 +156,21 @@ class _SpeechScreenState extends State<SpeechScreen> {
             ),
           ),
         ),
-          FlatButton(onPressed: upload,color: Colors.redAccent, child:
-          Text('Ftp Upload'),)
-        ],
-      ),
-    );
+      );
   }
   void _write(String text) async {
     final Directory directory = await getApplicationDocumentsDirectory();
     file = File('${directory.path}/my_file.txt');
-    await file.writeAsString(text);
-//    String contents= await file.readAsString();
-//    print(contents);
+    await file.writeAsString(problemType+ ': '+text);
   }
   upload() async {
+
     final Directory directory = await getApplicationDocumentsDirectory();
     file = File('${directory.path}/my_file.txt');
     String contents= await file.readAsString();
-    print(contents);
+//    print(contents);
+    newone=newone+'\n'+contents;
+    print(newone);
 //    try {
 //      FTPClient ftpClient = FTPClient(
 //          '182.50.151.114', user: 'pihms', pass: "MobApp@123\$");
